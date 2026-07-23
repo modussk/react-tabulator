@@ -1,0 +1,51 @@
+{
+  "name": "my-react-tabulator",
+  "version": "1.0.0",
+  "description": "React wrapper for Tabulator tables",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "workspaces": [
+    "example"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.3.2",
+    "ahooks": "^3.9.7",
+    "antd": "^6.5.1",
+    "fuse.js": "^7.5.0",
+    "tabulator-tables": "^6.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/tabulator-tables": "^6.3.6",
+    "tsup": "^8.5.1",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "react",
+    "tabulator",
+    "table",
+    "antd"
+  ],
+  "author": "",
+  "license": "ISC"
+}
