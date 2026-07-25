@@ -8,4 +8,6 @@ export type {
 	ReactTabulatorOptions,
 	ReactTabulatorProps,
 } from "./ReactTabulator";
+export { createSparkBarFormatter, createSparkChartFormatter } from "./spark-chart";
+export type { SparkBarColorFn, SparkBarOptions, SparkChartColorFn, SparkChartOptions } from "./spark-chart";
 export { useAntdTabulatorTheme } from "./use-antd-theme";
