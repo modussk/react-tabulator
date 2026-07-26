@@ -1,6 +1,6 @@
 # ReactTabulator
 
-[Tabulator](https://tabulator.info) 를 감싼 React 래퍼 컴포넌트. Ant Design 톤 테마, quick filter(Fuse.js),
+[Tabulator](https://tabulator.info) 를 감싼 React 래퍼 컴포넌트. quick filter(Fuse.js),
 열 설정(표시/숨김 + localStorage 저장/복원), range 선택/클립보드, 편집 셀 강조 등을 옵션으로 제공합니다.
 
 이 폴더는 **자족적(self-contained)** 이며 다른 React 프로젝트로 폴더째 복사하여 사용할 수 있습니다.
@@ -51,6 +51,7 @@ function Example({ rows }: { rows: any[] }) {
 
   return (
     <ReactTabulator
+      idField="code"
       className={antdTabulator}
       data={rows}
       columns={columns}
@@ -66,6 +67,7 @@ function Example({ rows }: { rows: any[] }) {
 
 | Prop | 타입 | 설명 |
 | --- | --- | --- |
+| `idField` | `string` | **(필수)** 각 행 데이터를 고유하게 식별할 Key 필드명 (기존 `options.index` 대체) |
 | `data` | `any[]` | 행 데이터 (변경 시 `replaceData` 로 증분 갱신) |
 | `columns` | `ColumnDefinition[]` | Tabulator 컬럼 정의 (그룹 컬럼 지원) |
 | `options` | `object` | Tabulator 옵션 (기본 옵션에 병합) |
@@ -100,13 +102,25 @@ function Example({ rows }: { rows: any[] }) {
 - `editor` 셀은 더블클릭 또는 Enter 로만 편집, 값 변경 시 셀 강조
 - 행번호(rowHeader) 전체 순번 표시
 
-## 행 추가 / 삭제 관리 (`rowActions`)
+## 확장 API 및 행 추가 / 삭제 관리 (`rowActions`)
 
-`headerToolbar: { rowActions: true }` 설정 시 추가/삭제 토글 기능을 제공합니다.
-- **`+` (추가)**: 현재 보고 있는 페이지 상단에 신규 행 생성 (배경색: 옅은 파란색). 내부적으로 `_isNew` 플래그 관리.
-- **`-` (삭제)**: 선택된 범위(또는 선택된 행)의 삭제 상태를 토글. 기존 데이터는 취소선이 표시(내부적 `_isDeleted` 플래그 관리)되며, 플러스 버튼으로 방금 추가된 행인 경우 실제 데이터 및 화면에서 완전히 물리적 삭제됩니다.
+`headerToolbar: { rowActions: true }` 설정 시 툴바에서 기본 추가/삭제 기능을 제공합니다.
+- **`+` (추가)**: 현재 보고 있는 뷰 상단에 신규 행 생성 (배경색: 옅은 파란색). 내부적으로 `_isNew` 플래그 관리.
+- **`-` (삭제)**: 선택된 범위(또는 선택된 행)의 삭제 상태를 토글. 기존 데이터는 취소선이 표시(내부적 `_isDeleted` 플래그 관리)되며, 신규 행(`_isNew`)인 경우 완전 삭제됩니다.
 
-추가/삭제된 데이터 목록(Diff)은 아래 전용 API를 호출하여 백엔드 전송용으로 쉽게 추출할 수 있습니다:
+### 트랜잭션 업데이트 (`applyTransaction`)
+배열(Batch) 기반으로 여러 행을 한 번에 추가/수정/삭제할 수 있는 AG Grid 스타일의 고성능 트랜잭션 API를 제공합니다. 외부 컴포넌트에서 `onRef`로 인스턴스를 넘겨받아 직접 호출할 수 있습니다.
+
+```tsx
+// 트랜잭션 단위로 다중 변경 (성능 및 일관성에 최적화된 방식)
+const result = tableRef.current.applyTransaction({
+  add: [{ name: "새 항목" }, { name: "항목 2" }], // 일괄 추가 (_isNew 플래그 자동 부여)
+  update: [{ id: 1, _isDeleted: true }],          // ID를 기준으로 기존 항목 Soft Delete (취소선 렌더링)
+  remove: [document1, document2],                 // 완전 삭제 (Hard Delete)
+});
+```
+
+추가/삭제된 전체 데이터 목록(Diff)은 아래 API로 쉽게 추출하여 백엔드로 전송할 수 있습니다:
 ```tsx
 const addedData = tableRef.current.getNewRowsData();
 const deletedData = tableRef.current.getDeletedRowsData();
@@ -123,7 +137,7 @@ const deletedData = tableRef.current.getDeletedRowsData();
 재정렬로 행 위치가 바뀔 때 옛 위치 → 새 위치로 슬라이드시킵니다(AG Grid `animateRows` 유사).
 
 ```tsx
-<ReactTabulator data={rows} columns={cols} animateRows animateRowsDuration={250} />
+<ReactTabulator idField="id" data={rows} columns={cols} animateRows animateRowsDuration={250} />
 ```
 
 - **동작**: `updateData`/정렬 후 위치가 바뀐 행이 새 위치로 부드럽게 이동
@@ -135,7 +149,7 @@ const deletedData = tableRef.current.getDeletedRowsData();
 열 설정 메뉴에서 열을 표시/숨길 때, 좌우로 밀리는 열들을 슬라이드시킵니다.
 
 ```tsx
-<ReactTabulator data={rows} columns={cols} headerToolbar={{ columnSetting: true }} animateCols />
+<ReactTabulator idField="id" data={rows} columns={cols} headerToolbar={{ columnSetting: true }} animateCols />
 ```
 
 - **동작**: 열을 숨기면 오른쪽 열들이 왼쪽으로, 표시하면 오른쪽으로 슬라이드하며 자리 이동

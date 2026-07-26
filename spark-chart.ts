@@ -143,15 +143,21 @@ export function createSparkChartFormatter(options: SparkChartOptions = {}): (cel
 	return function sparkChartFormatter(cell: any): HTMLElement {
 		const arr: number[] = accessor(cell) || [];
 
-		// 셀에 이미 만들어 둔 canvas 가 있으면 재사용한다(재렌더마다 새 canvas 생성 방지 → DOM churn/메모리 부담 감소).
-		const cellEl: HTMLElement | undefined = cell?.getElement?.();
-		let canvas = cellEl?.querySelector<HTMLCanvasElement>("canvas.rt-sparkchart") ?? undefined;
+		// 셀에 이미 만들어 둔 canvas 가 있으면 재사용한다.
+		// Tabulator 가 updateData 시 innerHTML 을 비워 querySelector 로는 찾지 못할 수 있으므로,
+		// DOM 노드 대신 엘리먼트 객체의 프로퍼티로 캐싱하여 강력하게 재사용(DOM churn/메모리 누수 방지).
+		const cellEl: any = cell?.getElement?.();
+		const CANVAS_KEY = "__rtSparkCanvas";
+		let canvas: HTMLCanvasElement = cellEl?.[CANVAS_KEY];
 		if (!canvas) {
-			canvas = document.createElement("canvas");
+			canvas = document.createElement("canvas") as HTMLCanvasElement;
 			canvas.className = "rt-sparkchart";
 			canvas.style.width = `${width}px`;
 			canvas.style.height = `${height}px`;
 			canvas.style.verticalAlign = "middle";
+			if (cellEl) {
+				cellEl[CANVAS_KEY] = canvas;
+			}
 		}
 
 		// 고해상도(레티나) 대응: 실제 픽셀 버퍼는 dpr 배율로 잡고 ctx 를 스케일

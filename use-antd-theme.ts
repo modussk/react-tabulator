@@ -86,11 +86,11 @@ function buildCss(cls: string, token: TabulatorTokens): string {
 
 		// editor 로 값이 수정된 셀 강조 - 연한 붉은색
 		`${c} .tabulator-row .tabulator-cell.tabulator-cell-edited{background-color:${token.colorErrorBg ?? "#fff1f0"} !important;}`,
-		`${c} .tabulator-row:hover .tabulator-cell.tabulator-cell-edited{background-color:${token.colorErrorBgHover ?? "#fff1f0"} !important;}`,
+		`${c} .tabulator-row:hover .tabulator-cell.tabulator-cell-edited{background-color:${(token as any).colorErrorBgHover ?? "#fff1f0"} !important;}`,
 
 		// 신규 추가된 행 (연한 파란색)
 		`${c} .tabulator-row.rt-row-new{background-color:${token.colorPrimaryBg ?? "#e6f4ff"} !important;}`,
-		`${c} .tabulator-row:hover.rt-row-new{background-color:${token.colorPrimaryBgHover ?? "#bae0ff"} !important;}`,
+		`${c} .tabulator-row:hover.rt-row-new{background-color:${(token as any).colorPrimaryBgHover ?? "#bae0ff"} !important;}`,
 		
 		// 삭제된 행 (취소선)
 		`${c} .tabulator-row.rt-row-deleted, ${c} .tabulator-row.rt-row-deleted .tabulator-cell {text-decoration:line-through !important;color:${token.colorTextQuaternary ?? "#bfbfbf"} !important;}`,

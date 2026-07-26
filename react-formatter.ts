@@ -28,6 +28,7 @@ function sweepDeadRoots() {
 			setTimeout(() => {
 				try {
 					root.unmount();
+					delete (host as any)[REACT_ROOT_KEY];
 				}
 				catch {}
 			}, 0);
@@ -93,7 +94,8 @@ export function reactFormatter(element: ReactElement) {
 				// Virtual DOM 처리 중 셀이 이미 파기된 경우 무시
 			}
 		};
-		onRendered(render);
+		// Tabulator 의 onRendered 콜백 배열은 재렌더 시 초기화되지 않아 계속 누적되어 메모리 릭(Closure/Listener)을 유발합니다.
+		// setTimeout 만으로도 다음 틱에 렌더가 보장되므로 onRendered 를 사용하지 않습니다.
 		setTimeout(render, 0);
 
 		return hostEl;

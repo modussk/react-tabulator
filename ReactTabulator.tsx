@@ -3,7 +3,7 @@ import type { Tabulator as TabulatorTypes } from "./types/TabulatorTypes";
 
 import { useDebounceFn } from "ahooks";
 import Fuse from "fuse.js";
-import { useEffect, useId, useRef, useState } from "react";
+import { forwardRef, useEffect, useId, useImperativeHandle, useRef, useState } from "react";
 import { TabulatorFull as Tabulator } from "tabulator-tables";
 
 import { propsToOptions } from "./ConfigUtils";
@@ -17,15 +17,30 @@ export interface ReactTabulatorOptions extends TabulatorTypes.Options {
 
 export interface ColumnDefinition extends TabulatorTypes.ColumnDefinition {}
 
+export interface TransactionParams {
+	add?: any[]
+	addIndex?: number | boolean
+	update?: any[]
+	remove?: any[]
+}
+
+export interface GridApi {
+	applyTransaction: (transaction: TransactionParams) => { add: any[]; update: any[]; remove: any[] }
+	getNewRowsData: () => any[]
+	getDeletedRowsData: () => any[]
+}
+
 export interface ReactTabulatorProps {
+	/** 고유 식별자(PK)로 사용할 필드명 (필수) */
+	idField: string
 	columns?: ColumnDefinition[]
 	data?: any[]
 	options?: any
 	events?: Record<string, (...args: any[]) => void>
 	className?: string
 	style?: CSSProperties
-	/** Tabulator 인스턴스 ref 를 상위로 전달 */
-	onRef?: (ref: React.RefObject<any>) => void
+	/** 엄격하게 제어된 GridApi 객체를 전달 (또는 ref 훅 사용 권장) */
+	onRef?: (ref: React.RefObject<GridApi> | { current: GridApi }) => void
 	/**
 	 * @zh 상단 header 툴바 설정. 지정하면 테이블 위에 header 를 렌더링하여 왼쪽에 quick filter,
 	 *     오른쪽에 열 설정(columnSetting)을 배치합니다. 미지정(undefined)이면 header 를 표시하지 않습니다.
@@ -638,8 +653,9 @@ const DEFAULT_OPTIONS = {
  *     - Builds the instance once, then updates data/columns incrementally via replaceData / setColumns.
  *     - Does not spread props onto the DOM, avoiding React attribute warnings.
  */
-export default function ReactTabulator(props: ReactTabulatorProps) {
+const ReactTabulator = forwardRef<GridApi, ReactTabulatorProps>((props, ref) => {
 	const {
+		idField,
 		columns,
 		data,
 		options,
@@ -660,6 +676,10 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 		autoSelectFirstCell = false,
 	} = props;
 
+	if (!idField) {
+		throw new Error("[ReactTabulator] 'idField' prop은 필수입니다. 데이터의 고유 식별자 키를 명시해주세요.");
+	}
+
 	// headerToolbar 객체에서 값 파생 (미지정 시 header 미표시)
 	const hasHeaderToolbar = headerToolbar != null;
 	const columnSettingEnabled = headerToolbar?.columnSetting === true;
@@ -674,6 +694,39 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 
 	const domRef = useRef<HTMLDivElement>(null);
 	const instanceRef = useRef<any>(null);
+
+	const gridApi: GridApi = {
+		applyTransaction: (transaction: TransactionParams) => {
+			const instance = instanceRef.current;
+			const { add, addIndex = true, update, remove } = transaction;
+			const res: { add: any[], update: any[], remove: any[] } = { add: [], update: [], remove: [] };
+			if (!instance) return res;
+
+			if (remove && remove.length > 0) {
+				instance.deleteRow(remove);
+				res.remove = remove;
+			}
+			if (add && add.length > 0) {
+				const newRows = add.map((row: any) => ({ ...row, [idField]: row[idField] || `new_${Date.now()}_${Math.floor(Math.random()*1000)}`, _isNew: row._isNew ?? true }));
+				instance.addData(newRows, addIndex);
+				res.add = newRows;
+			}
+			if (update && update.length > 0) {
+				instance.updateData(update);
+				res.update = update;
+			}
+			return res;
+		},
+		getNewRowsData: () => {
+			return instanceRef.current?.getData().filter((d: any) => d._isNew) || [];
+		},
+		getDeletedRowsData: () => {
+			return instanceRef.current?.getData().filter((d: any) => d._isDeleted) || [];
+		}
+	};
+
+	useImperativeHandle(ref, () => gridApi);
+
 	const builtRef = useRef(false);
 	const reactId = useId().replace(/:/g, "");
 
@@ -699,8 +752,8 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 	flashOnChangeRef.current = flashOnChange;
 	const flashDurationRef = useRef(flashDuration);
 	flashDurationRef.current = flashDuration;
-	const indexFieldRef = useRef<string>((options?.index as string) ?? "id");
-	indexFieldRef.current = (options?.index as string) ?? "id";
+	const indexFieldRef = useRef<string>(idField);
+	indexFieldRef.current = idField;
 	// 직전(마지막으로 렌더된) 데이터 (변경 셀 diff 용)
 	const prevDataRef = useRef<any[]>(data ?? []);
 	// rAF coalescing 관련 ref
@@ -759,7 +812,7 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 			// 행의 모든 컬럼 값을 하나의 문자열로 합쳐 "행 전체 컬럼" 기준으로 검색 (AG Grid quick filter 방식)
 			searchRows = rows.map(row => ({
 				row,
-				text: parsedKeys.map(pathParts => {
+				text: parsedKeys.map((pathParts: string[]) => {
 					const v = getByPath(row, pathParts);
 					return v == null ? "" : String(v);
 				}).join(" "),
@@ -956,6 +1009,7 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 			const instance = new Tabulator(el, {
 				columns,
 				data: data ?? [],
+				index: idField,
 				...DEFAULT_OPTIONS,
 				// rowNumber=false 이면 행번호 컬럼 숨김 (DEFAULT_OPTIONS.rowHeader 덮어씀)
 				...(rowNumber ? {} : { rowHeader: false }),
@@ -965,9 +1019,7 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 				rowFormatter: enhancedRowFormatter,
 			});
 			
-			// 외부에서 신규/삭제 행 데이터를 조회할 수 있도록 API 확장
-			(instance as any).getNewRowsData = () => instance.getData().filter((d: any) => d._isNew);
-			(instance as any).getDeletedRowsData = () => instance.getData().filter((d: any) => d._isDeleted);
+
 
 			// StrictMode 등으로 마운트 도중 언마운트된 경우 방금 만든 인스턴스를 정리합니다.
 			if (destroyed) {
@@ -1016,7 +1068,7 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 					initialClearDone = true;
 					// UI 업데이트 이후에 range가 생성될 수 있으므로 setTimeout으로 지연 해제
 					setTimeout(() => {
-						try { instance.clearRange?.(); } catch {}
+						try { (instance as any).clearRange?.(); } catch {}
 					}, 0);
 				}
 			});
@@ -1032,7 +1084,9 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 				});
 			}
 			instanceRef.current = instance;
-			onRef?.(instanceRef);
+			if (onRef) {
+				onRef({ current: gridApi });
+			}
 		};
 
 		build();
@@ -1095,6 +1149,9 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 			if (flashOnChangeRef.current && flash.length) {
 				flashCells(instance, flash, idxF, flashDurationRef.current);
 			}
+			// updateData 등 부분 갱신 시 renderComplete 이벤트가 발생하지 않을 수 있으므로,
+			// 갱신 직후 수동으로 끊긴 DOM(React Root)을 강제 정리해 메모리 누수를 막는다.
+			sweepReactRoots();
 		};
 
 		if (sameRowSet) {
@@ -1218,47 +1275,45 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 
 	const showHeader = hasHeaderToolbar && (quickFilter || columnSettingEnabled || rowActionsEnabled);
 
-	const handleAddRow = () => {
-		const instance = instanceRef.current;
-		if (!instance) return;
-		
-		const newRowData = { id: `new_${Date.now()}_${Math.floor(Math.random()*1000)}`, _isNew: true };
-		const visibleRows = instance.getRows("visible");
-		const firstVisible = visibleRows.length ? visibleRows[0] : false;
-		
-		if (firstVisible) {
-			instance.addRow(newRowData, true, firstVisible);
-		} else {
-			instance.addData([newRowData], true);
-		}
+	const handleAddRow = (rowsToAdd?: any[]) => {
+		// 내부 툴바 액션도 applyTransaction 을 통하도록 단일화
+		const add = rowsToAdd && rowsToAdd.length > 0 ? rowsToAdd : [{}];
+		gridApi.applyTransaction({ add });
 	};
 
-	const handleDeleteRow = () => {
+	const handleDeleteRow = (rowsToDelete?: any[]) => {
 		const instance = instanceRef.current;
 		if (!instance) return;
 		
-		let rowsToUpdate = instance.getSelectedRows();
-		
-		if (rowsToUpdate.length === 0 && instance.modules.selectRange) {
-			const ranges = instance.modules.selectRange.getRanges?.() || [];
-			const rowSet = new Set();
-			ranges.forEach((r: any) => {
-				const rangeRows = r.getRows?.() || [];
-				rangeRows.forEach((row: any) => rowSet.add(row));
-			});
-			rowsToUpdate = Array.from(rowSet);
+		let targetRows = rowsToDelete;
+		if (!targetRows || targetRows.length === 0) {
+			targetRows = instance.getSelectedRows() || [];
+			if (targetRows!.length === 0 && instance.modules.selectRange) {
+				const ranges = instance.modules.selectRange.getRanges?.() || [];
+				const rowSet = new Set();
+				ranges.forEach((r: any) => {
+					const rangeRows = r.getRows?.() || [];
+					rangeRows.forEach((row: any) => rowSet.add(row));
+				});
+				targetRows = Array.from(rowSet);
+			}
 		}
 
-		rowsToUpdate.forEach((row: any) => {
-			const data = row.getData();
-			if (data._isNew) {
-				// 신규 추가된 행인 경우 실제 데이터 및 UI에서 완전히 삭제
-				row.delete();
-			} else {
-				// 기존(init) 데이터인 경우 취소선(삭제 상태) 토글
-				row.update({ _isDeleted: !data._isDeleted });
-			}
+		if (!targetRows || targetRows.length === 0) return;
+
+		const remove: any[] = [];
+		const update: any[] = [];
+
+		targetRows!.forEach((row: any) => {
+			const rowComp = typeof row.getData === 'function' ? row : instance.getRow(row[idField] || row);
+			if (!rowComp) return;
+			const data = rowComp.getData();
+			if (data._isNew) remove.push(rowComp);
+			else update.push({ [idField]: data[idField], _isDeleted: !data._isDeleted });
 		});
+
+		// 내부 툴바 액션도 applyTransaction 을 통하도록 단일화
+		gridApi.applyTransaction({ remove, update });
 		instance.deselectRow();
 	};
 
@@ -1342,4 +1397,6 @@ export default function ReactTabulator(props: ReactTabulatorProps) {
 			<div ref={domRef} id={reactId} style={{ flex: 1, minHeight: 0 }} />
 		</div>
 	);
-}
+});
+
+export default ReactTabulator;
