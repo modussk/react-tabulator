@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // Type definitions for tabulator-tables 5.0
 // Project: http://tabulator.info
 // Definitions by: Josh Harris <https://github.com/jojoshua>, Mike Lischke <https://github.com/mike-lischke>

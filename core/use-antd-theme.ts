@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import type { TabulatorTokens } from "./tokens";
 
 import { useId, useInsertionEffect, useMemo } from "react";
@@ -48,6 +49,10 @@ function buildCss(cls: string, token: TabulatorTokens): string {
 	return [
 		// 컨테이너 (header + table 을 감싼 단일 박스)
 		`${c}{border:1px solid ${token.colorBorderSecondary} !important;border-radius:${token.borderRadiusLG}px;overflow:hidden;background-color:${token.colorBgContainer} !important;color:${token.colorText};font-family:${token.fontFamily};font-size:${token.fontSize}px;}`,
+		// 셀 유틸리티 클래스 — 컬럼 정의의 cssClass 로 지정 (Tabulator 가 해당 컬럼의 header/cell 에 클래스를 부여)
+		// rt-mono: 고정폭 폰트(코드/식별자 컬럼용), rt-tabular-nums: 현재 폰트 유지 + 숫자만 등폭(자릿수 정렬용)
+		`${c} .rt-mono{font-family:${token.fontFamilyCode ?? defaultTokens.fontFamilyCode};}`,
+		`${c} .rt-tabular-nums{font-variant-numeric:tabular-nums;}`,
 
 		// 상단 header 툴바 (테이블과 하나처럼 보이도록 하단 구분선으로 연결)
 		`${c} .react-tabulator-header{padding:${token.paddingXS}px ${token.paddingSM}px;border-bottom:1px solid ${token.colorBorderSecondary};background-color:${token.colorBgContainer};}`,
@@ -58,6 +63,16 @@ function buildCss(cls: string, token: TabulatorTokens): string {
 		// 헤더
 		`${c} .tabulator-header{background-color:${frostBase} !important;background-color:${frostVeil} !important;border-bottom:1px solid ${token.colorBorderSecondary} !important;color:${token.colorTextHeading} !important;font-weight:${fontWeightStrong};}`,
 		`${c} .tabulator-header .tabulator-col{background-color:transparent !important;border-right:1px solid ${token.colorBorderSecondary} !important;}`,
+		// group 컬럼 헤더: 그룹 제목(tabulator-col-content)과 하위 컬럼(tabulator-col-group-cols) 사이의
+		// 상하 구분선 — 기본 테마의 짙은 회색(#aaa)을 컬럼 구분선과 동일한 색으로 통일
+		`${c} .tabulator-header .tabulator-col .tabulator-col-group-cols{border-top:1px solid ${token.colorBorderSecondary} !important;}`,
+		// 하단 상태바(range 집계): 헤더/푸터와 같은 frosted 톤 + 상단 구분선
+		`${c} .rt-status-bar{border-top:1px solid ${token.colorBorderSecondary};background-color:${frostBase};color:${token.colorTextTertiary};}`,
+		`${c} .rt-status-bar strong{color:${token.colorText};font-weight:${fontWeightStrong};}`,
+		// set filter 헤더 아이콘(headerPopup 버튼): 기본은 옅게, hover/필터 활성 시 primary 색으로 강조
+		`${c} .tabulator-header-popup-button{color:${token.colorTextTertiary};padding:0 4px;cursor:pointer;}`,
+		`${c} .tabulator-header-popup-button:hover{color:${token.colorPrimary};}`,
+		`${c} .tabulator-col.rt-set-filter-active .tabulator-header-popup-button{color:${token.colorPrimary};}`,
 		`${c} .tabulator-header .tabulator-col .tabulator-col-content{padding:${token.paddingXS}px ${token.paddingSM}px !important;}`,
 
 		// 본문 행/셀
@@ -91,7 +106,7 @@ function buildCss(cls: string, token: TabulatorTokens): string {
 		// 신규 추가된 행 (연한 파란색)
 		`${c} .tabulator-row.rt-row-new{background-color:${token.colorPrimaryBg ?? "#e6f4ff"} !important;}`,
 		`${c} .tabulator-row:hover.rt-row-new{background-color:${(token as any).colorPrimaryBgHover ?? "#bae0ff"} !important;}`,
-		
+
 		// 삭제된 행 (취소선)
 		`${c} .tabulator-row.rt-row-deleted, ${c} .tabulator-row.rt-row-deleted .tabulator-cell {text-decoration:line-through !important;color:${token.colorTextQuaternary ?? "#bfbfbf"} !important;}`,
 

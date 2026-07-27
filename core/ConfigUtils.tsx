@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import {createRoot} from "react-dom/client";
 
 // .prettierignore    (to keep relevant props together)

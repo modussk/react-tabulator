@@ -1,9 +1,10 @@
+// SPDX-License-Identifier: PolyForm-Small-Business-1.0.0 OR LicenseRef-Commercial
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 
 import { useState } from "react";
 import { Popover as TinyPopover } from "react-tiny-popover";
 
-import { defaultTokens as token } from "./tokens";
+import { defaultTokens as token } from "../core/tokens";
 
 /**
  * @zh antd UI 컴포넌트(Button/Checkbox/Switch/Divider/Input/Popover) 의존 제거를 위한 경량 로컬 대체 구현.

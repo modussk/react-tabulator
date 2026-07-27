@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * @zh ReactTabulator 스타일에 사용하는 디자인 토큰. antd 의존 없이 자체 기본값(Ant Design 라이트 톤)을 제공합니다.
  *     앱에서 antd 를 쓰는 경우 `useAntdTabulatorTheme(token)` 인자로 antd 토큰을 넘겨 다크모드/커스텀 테마와 동기화할 수 있습니다.
@@ -35,6 +36,8 @@ export interface TabulatorTokens {
 	borderRadiusSM: number
 	fontSize: number
 	fontFamily: string
+	/** 고정폭(코드/숫자) 셀용 폰트. 컬럼 cssClass "rt-mono" 에 적용 (antd 의 fontFamilyCode 와 동일 의미) */
+	fontFamilyCode?: string
 	lineHeight: number
 	fontWeightStrong: number
 	padding: number
@@ -82,6 +85,7 @@ export const defaultTokens: TabulatorTokens = {
 	borderRadiusSM: 4,
 	fontSize: 14,
 	fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+	fontFamilyCode: "ui-monospace, SFMono-Regular, Menlo, Consolas, 'Courier New', monospace",
 	lineHeight: 1.5714285714285714,
 	fontWeightStrong: 600,
 	padding: 16,

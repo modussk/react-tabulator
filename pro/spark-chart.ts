@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: PolyForm-Small-Business-1.0.0 OR LicenseRef-Commercial
 /**
  * @zh canvas 기반 경량 스파크 차트(bar / line) formatter 팩토리.
  *     React/차트 라이브러리 무의존 — 셀당 canvas 하나만 생성해 즉시 draw 하므로 대량 행에서도 비용이 낮습니다.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 import type { ReactElement } from "react";
 import type { Root } from "react-dom/client";
 
@@ -56,7 +57,7 @@ export function sweepReactRoots() {
  * { title: "Name", field: "name", formatter: reactFormatter(<MyCell />) }
  */
 export function reactFormatter(element: ReactElement) {
-	return (cell: any, _formatterParams: any, onRendered: (callback: () => void) => void): HTMLElement | string => {
+	return (cell: any, _formatterParams: any, _onRendered: (callback: () => void) => void): HTMLElement | string => {
 		const cellEl: any = cell?.getElement?.();
 		// 셀 엘리먼트에 host 를 1회만 만들어 붙이고 계속 재사용(내용이 비워져도 프로퍼티로 참조 유지).
 		let host: HTMLElement | undefined = cellEl?.[HOST_KEY];
