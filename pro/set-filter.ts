@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PolyForm-Small-Business-1.0.0 OR LicenseRef-Commercial
+// SPDX-License-Identifier: MIT
 // Set Filter (엑셀식 고유값 체크박스 필터) — AG Grid Enterprise 의 Set Filter 대응.
 // 컬럼 정의에 `setFilter: true` 를 지정하면 헤더에 깔때기 아이콘이 표시되고,
 // 클릭 시 해당 컬럼의 고유값 체크박스 목록(검색 + 전체 선택)이 팝업으로 열린다.

@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: PolyForm-Small-Business-1.0.0 OR LicenseRef-Commercial
-// 프로(PolyForm SB 1.0.0 + 상용) 공개 API 배럴
+// SPDX-License-Identifier: MIT
+// 프로(MIT) 공개 API 배럴
 export { animateColumnFlip, captureRowTops, playRowFlip, playSortFlip } from "./animations";
 export { computeFlashCells, flashCells } from "./flash";
 export type { FlashCell } from "./flash";

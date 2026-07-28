@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PolyForm-Small-Business-1.0.0 OR LicenseRef-Commercial
+// SPDX-License-Identifier: MIT
 // 프로 툴바 다국어 사전.
 // 코어와 같은 Tabulator langs 사전에 `reactTabulator` 네임스페이스로 얹고,
 // 프로 컴포넌트가 `localized` 이벤트를 받아 React 툴바를 재렌더한다.

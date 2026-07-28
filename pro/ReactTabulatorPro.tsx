@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PolyForm-Small-Business-1.0.0 OR LicenseRef-Commercial
+// SPDX-License-Identifier: MIT
 import type { ColumnDefinition, ReactTabulatorCoreProps } from "../core/ReactTabulator";
 import type { FlashCell } from "./flash";
 import type { ReactTabulatorLangTexts } from "./i18n";

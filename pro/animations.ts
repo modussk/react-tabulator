@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PolyForm-Small-Business-1.0.0 OR LicenseRef-Commercial
+// SPDX-License-Identifier: MIT
 // 행/열 이동 애니메이션 (FLIP). Tabulator 에 네이티브 옵션이 없어 직접 구현.
 
 // ── 열 표시/숨김 애니메이션 (가로 FLIP) ────────────────────

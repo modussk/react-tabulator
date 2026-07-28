@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PolyForm-Small-Business-1.0.0 OR LicenseRef-Commercial
+// SPDX-License-Identifier: MIT
 // 변경 셀 플래시 강조 (flashOnChange). 숫자 증가=up(초록), 감소·비숫자=down(빨강).
 
 export interface FlashCell { row: any, field: string, variant: "up" | "down" }

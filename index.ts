@@ -1,5 +1,5 @@
 // 공개 API 배럴 (하위호환).
-// 라이선스는 디렉터리 단위로 다름: core/ = MIT, pro/ = PolyForm SB 1.0.0 OR 상용. ./LICENSING.md 참고.
+// 라이선스는 디렉터리 단위로 다름: core/ = MIT, pro/ = MIT. ./LICENSING.md 참고.
 import { CORE_LANGS, mergeLangs } from "./core/i18n";
 import { PRO_LANGS } from "./pro/i18n";
 
@@ -13,7 +13,7 @@ export type {
 	ReactTabulatorOptions,
 } from "./core";
 
-// ── pro (PolyForm SB 1.0.0 OR 상용) ──
+// ── pro (MIT) ──
 export { createSparkBarFormatter, createSparkChartFormatter, ReactTabulatorPro } from "./pro";
 export type {
 	AddButtonConfig,

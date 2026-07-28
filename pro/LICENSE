@@ -1,22 +1,21 @@
-ReactTabulator Pro — Dual License
+MIT License
 
 Copyright (c) 2026 modussk
 
-This directory ("react-tabulator-pro") is licensed under EITHER of the
-following, at your option:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-1. PolyForm Small Business License 1.0.0
-   Full text: https://polyformproject.org/licenses/small-business/1.0.0
-   Free of charge for organizations with less than 1,000,000 USD total
-   revenue in the prior tax year and fewer than 100 total individuals,
-   as defined by the license.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-2. Commercial License
-   Organizations that do not qualify under (1) must obtain a commercial
-   license. Contact: modussk@gmail.com
-
-SPDX-License-Identifier: PolyForm-Small-Business-1.0.0 OR LicenseRef-Commercial
-
-NOTE (draft): before external distribution, include the full PolyForm
-Small Business 1.0.0 text in this file and finalize the commercial terms
-(deployment/embedding/OEM conditions) with legal review. See ../LICENSING.md.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PolyForm-Small-Business-1.0.0 OR LicenseRef-Commercial
+// SPDX-License-Identifier: MIT
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 
 import { useState } from "react";
