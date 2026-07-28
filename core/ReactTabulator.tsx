@@ -311,7 +311,18 @@ const DEFAULT_OPTIONS = {
 	paginationSize: 6,
 	paginationSizeSelector: [3, 6, 8, 10],
 	movableColumns: true,
-	paginationCounter: "rows",
+	paginationCounter: function (this: any, pageSize: number, currentRow: number, currentPage: number, totalRows: number, totalPages: number) {
+		const lang = this.table ? this.table.modules.localize : null;
+		const showing = lang ? lang.getText("pagination.counter.showing") || "Showing" : "Showing";
+		const of = lang ? lang.getText("pagination.counter.of") || "of" : "of";
+		const rows = lang ? lang.getText("pagination.counter.rows") || "rows" : "rows";
+
+		const start = currentRow.toLocaleString();
+		const end = Math.min(currentRow + pageSize - 1, totalRows).toLocaleString();
+		const total = totalRows.toLocaleString();
+
+		return `${showing} ${start} - ${end} ${of} ${total} ${rows}`;
+	},
 	// rownum / getPosition 은 페이지마다 1부터 시작하므로, 현재 페이지 오프셋을 더해 전체 순번을 표시합니다.
 	rowHeader: {
 		formatter: (cell: any) => formatRowNumber(computeRowNumber(cell.getRow(), cell.getTable()), cell.getTable()),

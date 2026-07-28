@@ -1,5 +1,5 @@
 {
-  "name": "my-react-tabulator",
+  "name": "@modussk/react-tabulator",
   "version": "1.0.0",
   "description": "React wrapper for Tabulator tables",
   "main": "./dist/index.js",
@@ -47,5 +47,5 @@
     "antd"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "MIT"
 }
